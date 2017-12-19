@@ -66,9 +66,7 @@ public class ReutersIndexer {
 
 	protected int index(File[] files) throws Exception {
 		// TODO Hier bitte implementieren
-		System.out.println("Indexing " + f.getCanonicalPath());
-		Document doc = getDocument(f);
-		writer.addDocument(doc); // 10
+	
 		return -1;
 	}
 }
