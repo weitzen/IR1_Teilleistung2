@@ -89,6 +89,8 @@ public class ReutersIndexer {
 	
 	protected Document getDocument(File f) throws Exception {
 		Document doc = new Document();
+		//https://stackoverflow.com/questions/18594350/luke-where-are-my-field-values
+		//https://sitecore.stackexchange.com/questions/593/fields-not-being-indexed-in-lucene
 		// XXX 7: neu: TextField, um Dateiinhalt zu indexieren
 		doc.add(new TextField(CONTENT, new FileReader(f))); // 7
 		// XXX 8: neu: numerische Feld, um Filegröße zu indexieren
