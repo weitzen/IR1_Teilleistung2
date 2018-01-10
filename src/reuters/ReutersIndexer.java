@@ -33,7 +33,7 @@ public class ReutersIndexer {
 	// Main-Methode
 	public static void main(String[] args) throws Exception {
 
-		// TODO: passen Sie die Pfade ggf. an!
+		// TODO passen Sie die Pfade ggf. an!
 		//String filePath = new File("").getAbsolutePath();
 		
 		/**
@@ -62,7 +62,8 @@ public class ReutersIndexer {
 	// Konstruktor
 	public ReutersIndexer(String indexDir) throws IOException {
 		Directory dir = FSDirectory.open(Paths.get(indexDir));
-		Analyzer analyzer = new StandardAnalyzer();
+		//Analyzer analyzer = new StandardAnalyzer(); //TODO  ersetzen mit NoStop
+		Analyzer analyzer = new MyNoStopAnalyzer();
 		IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 		writer = new IndexWriter(dir, iwc);
 	}
