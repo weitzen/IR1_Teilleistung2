@@ -5,24 +5,29 @@ import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.search.MultiTermQuery;
 
 public class ReutersSearcher {
 
 	//Main-Methode
 	public static void main(String[] args) throws IllegalArgumentException, IOException, ParseException {
 		
-		final boolean searchNumeric = false;
+		final boolean searchNumeric = true;
 		
 		String indexDir = "index";
 		//String q = "oil"; //7.2.1
@@ -43,10 +48,11 @@ public class ReutersSearcher {
 		//Found 856 document(s) (in 60 milliseconds) that matched query 'comp*':
 		
 		//Teil 7.3
-		String q = "\"the\"";  // 53 ohne Phrasen-Anführungszeichen
-		//testen mit versch. Varianten "and", "or" müssten verschiedene Ergebnisse liefern
-		//23 mit Phrasen-Anführungszeichen
-		//String q = "and";  //keine Ergebnisse 
+		//String q = "\"the\"";  
+		//String q = "\"and\"";  
+		
+		//Teil 7.4
+		String q = "oil";  
 		
 		
 		
@@ -69,11 +75,18 @@ public class ReutersSearcher {
 		Query query = parser.parse(q); // 4
 		
 		// TODO: hier bitte implementieren!
+
+		TermQuery searchingOil = new TermQuery(new Term("content", q));
+		Query rangeQuery = LongPoint.newRangeQuery("filesize", min, max);
 		
-		//es muss in filesize und nicht in content gesucht werden!!!!!
+		BooleanQuery booleanQuery = new BooleanQuery.Builder()
+			    .add(searchingOil, Occur.MUST)
+			    .add(rangeQuery, Occur.MUST)
+			    .build();
+
 		
 		long start = System.currentTimeMillis();
-		TopDocs hits = is.search(query, 2000); // 5
+		TopDocs hits = is.search(booleanQuery, 2000); // 5
 		long end = System.currentTimeMillis();
 
 		
@@ -88,21 +101,16 @@ public class ReutersSearcher {
 			System.out.println(++counter + ": " + doc.get("path")); // 8
 			}
 		
-		
 	}
 	
 	public static void search(String indexDir, String q) throws IOException, ParseException {
 
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(indexDir)));
 		IndexSearcher is = new IndexSearcher(reader); // 3
-		/*
-		 * powerful package,
-called QueryParser, to process the user’s text into a query object according to a common
-search syntax*/
+	
 		//QueryParser parser = new QueryParser("content", new StandardAnalyzer()); //TODO: ersetzen mit NoStopAnalyzer
 		QueryParser parser = new QueryParser("content", new MyNoStopAnalyzer());
 		Query query = parser.parse(q); // 4
-		//Query query_one = new TermQuery(new Term("content", "oil")); //7.2.1
 		
 		long start = System.currentTimeMillis();
 		TopDocs hits = is.search(query, 2000); // 5
